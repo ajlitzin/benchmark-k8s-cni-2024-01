@@ -1,5 +1,6 @@
 
-DOCKER_IMAGE = "infrabuilder/benchmark-k8s-cni-2024-01"
+# DOCKER_IMAGE = "infrabuilder/benchmark-k8s-cni-2024-01"
+DOCKER_IMAGE = "hub.comcast.net/k8s-eng/iperf3:v2.8"
 
 help:
 	echo "Usage: make <target>"
