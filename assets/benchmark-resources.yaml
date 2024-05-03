@@ -1,6 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata: 
+  namespace: network-test
   labels:
     app: cni-benchmark
     node: a1
@@ -8,7 +9,7 @@ metadata:
 spec:
   containers:
     - name: benchmark
-      image: infrabuilder/benchmark-k8s-cni-2024-01
+      image: hub.comcast.net/k8s-eng/iperf3:v2.8
       command: ["sleep","infinity"]
       securityContext:
         capabilities:
@@ -19,11 +20,13 @@ spec:
         name: iperf3
       - containerPort: 8080
         name: statexec
-  nodeName: a1
+  nodeSelector:
+    "kubernetes.io/hostname": "10.112.182.135"
 --- 
 apiVersion: v1
 kind: Pod
 metadata: 
+  namespace: network-test
   labels:
     app: cni-benchmark
     node: a2
@@ -31,7 +34,7 @@ metadata:
 spec:
   containers:
     - name: benchmark
-      image: infrabuilder/benchmark-k8s-cni-2024-01
+      image: hub.comcast.net/k8s-eng/iperf3:v2.8
       command: ["sleep","infinity"]
       securityContext:
         capabilities:
@@ -42,11 +45,13 @@ spec:
         name: iperf3
       - containerPort: 8080
         name: statexec
-  nodeName: a2
+  nodeSelector:
+    "kubernetes.io/hostname": "10.112.182.135"
 --- 
 apiVersion: v1
 kind: Pod
 metadata: 
+  namespace: network-test
   labels:
     app: cni-benchmark
     node: a3
@@ -54,7 +59,7 @@ metadata:
 spec:
   containers:
     - name: benchmark
-      image: infrabuilder/benchmark-k8s-cni-2024-01
+      image: hub.comcast.net/k8s-eng/iperf3:v2.8
       command: ["sleep","infinity"]
       securityContext:
         capabilities:
@@ -65,12 +70,14 @@ spec:
         name: iperf3
       - containerPort: 8080
         name: statexec
-  nodeName: a3
+  nodeSelector:
+    "kubernetes.io/hostname": "10.112.182.136"
 
 --- 
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: network-test
   name: cni-benchmark-a1
 spec:
   selector:
@@ -92,11 +99,17 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: network-test
   name: cni-benchmark-a2
 spec:
   selector:
     app: cni-benchmark
     node: a2
+  type: LoadBalancer
+  ipFamilyPolicy: RequireDualStack
+  ipFamilies:
+  - IPv4
+  - IPv6
   ports:
   - name: iperf3
     port: 5201
@@ -113,11 +126,17 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: network-test
   name: cni-benchmark-a3
 spec:
   selector:
     app: cni-benchmark
     node: a3
+  type: LoadBalancer
+  ipFamilyPolicy: RequireDualStack
+  ipFamilies:
+  - IPv4
+  - IPv6
   ports:
   - name: iperf3
     port: 5201
