@@ -5,8 +5,10 @@ CURDIR=$(dirname $0)
 
 cd $CURDIR
 
-export KUBECONFIG=$CURDIR/setup/59-kubeconfig.yaml
+# use local user kubeconfig
+# export KUBECONFIG=$CURDIR/setup/59-kubeconfig.yaml
 
+NAMESPACE="network-test"
 BENCHID=""
 RUNID=""
 OUTPUTDIR=""
@@ -40,20 +42,22 @@ function log { echo "$(prefix) $@"; }
 
 function test_prepare {
     TEST="prepare"
-    OUTPUTDIR="./results/$BENCHID/$RUNID"
+    # OUTPUTDIR="./results/$BENCHID/$RUNID"
+    OUTPUTDIR="/tmp/results/$BENCHID/$RUNID"
 
     log start
     [ -e $OUTPUTDIR ] && rm -rf $OUTPUTDIR
     mkdir -p $OUTPUTDIR
 
-    if [ "${BENCHID:0:3}" = "st_" ]
-    then
-        ./maas.sh init-tuned > /dev/null 2>&1
-    else
-        ./maas.sh init > /dev/null 2>&1
-    fi
+    # we don't need the maas stuff to run
+    # if [ "${BENCHID:0:3}" = "st_" ]
+    # then
+    #     ./maas.sh init-tuned > /dev/null 2>&1
+    # else
+    #     ./maas.sh init > /dev/null 2>&1
+    # fi
 
-    sleep 60
+    # sleep 60
 
     log end
 }
@@ -80,26 +84,30 @@ function test_setup {
 }
 
 function servercmd {
+    # need to use /tmp to write files in our containers
+    filepath="/tmp"
     filename="${TEST}-server"
 
     NUMABIND=""
     #[ "${BENCHID:0:3}" = "st_" ] && NUMABIND="numactl --cpunodebind=netdev:enp129s0f0 --membind=netdev:enp129s0f0"
     [ "${BENCHID:0:3}" = "st_" ] && NUMABIND="numactl --cpunodebind=1 --membind=1"
 
-    echo "$CMDA2 $(statexec ${filename}.prom) -s -- $NUMABIND $@" > $OUTPUTDIR/${filename}.cmd
+    echo "$CMDA2 $(statexec ${filepath}/${filename}.prom) -s -- $NUMABIND $@" > $OUTPUTDIR/${filename}.cmd
 
     $CMDA2 \
-        $(statexec ${filename}.prom) -s -- \
+        $(statexec ${filepath}/${filename}.prom) -s -- \
         $NUMABIND $@ \
         > $OUTPUTDIR/${filename}.stdout \
         2> $OUTPUTDIR/${filename}.stderr
 
     $CMDA2 \
-        cat ${filename}.prom \
+        cat ${filepath}/${filename}.prom \
         > $OUTPUTDIR/${filename}.prom \
         2>/dev/null
 }
 function clientcmd {
+    # need to use /tmp to write files in our containers
+    filepath="/tmp"
     filename="${TEST}-client"
 
     NUMABIND=""
@@ -107,16 +115,16 @@ function clientcmd {
     #[ "${BENCHID:0:3}" = "st_" ] && NUMABIND="numactl --cpunodebind=netdev:enp129s0f0 --membind=netdev:enp129s0f0"
     [ "${BENCHID:0:3}" = "st_" ] && NUMABIND="numactl --cpunodebind=1 --membind=1"
 
-    echo "$CMDA3 $(statexec ${filename}.prom) -dbc $(( ${DELAY_METRICS} + 1 ))  -c $DIRECT_A2 -- $NUMABIND $@" > $OUTPUTDIR/${filename}.cmd
+    echo "$CMDA3 $(statexec ${filepath}/${filename}.prom) -dbc $(( ${DELAY_METRICS} + 1 ))  -c $DIRECT_A2 -- $NUMABIND $@" > $OUTPUTDIR/${filename}.cmd
 
     $CMDA3 \
-        $(statexec ${filename}.prom) -dbc $(( ${DELAY_METRICS} + 1 ))  -c $DIRECT_A2 -- \
+        $(statexec ${filepath}/${filename}.prom) -dbc $(( ${DELAY_METRICS} + 1 ))  -c $DIRECT_A2 -- \
         $NUMABIND $@ \
         > $OUTPUTDIR/${filename}.stdout \
         2> $OUTPUTDIR/${filename}.stderr
 
     $CMDA3 \
-        cat ${filename}.prom \
+        cat ${filepath}/${filename}.prom \
         > $OUTPUTDIR/${filename}.prom \
         2>/dev/null
 }
@@ -149,7 +157,8 @@ function test_info {
     $CMDA2 uname -a > $OUTPUTDIR/${TEST}-server.uname
     $CMDA3 ip a > $OUTPUTDIR/${TEST}-client.interfaces
     $CMDA3 uname -a > $OUTPUTDIR/${TEST}-client.uname
-    $CURDIR/assets/test-netpol.sh > $OUTPUTDIR/${TEST}-netpol
+    # This needs some tweaking to get working
+    # $CURDIR/assets/test-netpol.sh > $OUTPUTDIR/${TEST}-netpol
     log end
 
 }
@@ -377,11 +386,13 @@ function reset_result_vars {
 
 function compute_results {
     # Compute results
-    RUNS=$(cd ./results/$BENCHID; ls -1 |grep -E "^[0-9]+$")
+    # RUNS=$(cd ./results/$BENCHID; ls -1 |grep -E "^[0-9]+$")
+    RUNS=$(cd /tmp/results/$BENCHID; ls -1 |grep -E "^[0-9]+$")
+    echo $RUNS
     for i in $RUNS
     do
         reset_result_vars
-        source ./results/$BENCHID/$i/all.results
+        source /tmp/results/$BENCHID/$i/all.results
 
         (
             echo -en "$IDLE_CLIENT_SYSTEM\t$IDLE_CLIENT_USER\t$IDLE_CLIENT_MEM\t$IDLE_SERVER_SYSTEM\t$IDLE_SERVER_USER\t$IDLE_SERVER_MEM\t"
@@ -394,7 +405,8 @@ function compute_results {
             echo -en "$SUS_CLIENT_SYSTEM\t$SUS_CLIENT_USER\t$SUS_CLIENT_MEM\t$SUS_SERVER_SYSTEM\t$SUS_SERVER_USER\t$SUS_SERVER_MEM\t$SUS_BW\t$SUS_JITTER\t$SUS_LOST\t"
             echo -en "$SUM_CLIENT_SYSTEM\t$SUM_CLIENT_USER\t$SUM_CLIENT_MEM\t$SUM_SERVER_SYSTEM\t$SUM_SERVER_USER\t$SUM_SERVER_MEM\t$SUM_BW\t$SUM_JITTER\t$SUM_LOST\t"
             echo        
-        ) >> ./results/$BENCHID/results-spreadsheet.csv
+        ) >> /tmp/results/$BENCHID/results-spreadsheet.csv
+        # ) >> ./results/$BENCHID/results-spreadsheet.csv
         
         (
             LABELS='id="'$BENCHID'",run="'$i'"'
@@ -499,7 +511,8 @@ function compute_results {
                 echo 'benchmark_iperf_jitter_milliseconds{'$LABELS',test="sum"} '${SUM_JITTER}' 1704067200000'
                 echo 'benchmark_iperf_lost_percent{'$LABELS',test="sum"} '${SUM_LOST}' 1704067200000'
             fi
-        ) >> ./results/$BENCHID/results.prom
+        ) >> /tmp/results/$BENCHID/results.prom
+        # ) >> ./results/$BENCHID/results.prom
     done
 }
 
@@ -507,31 +520,33 @@ function bench_cni {
     BENCHID="$1"
     shift
 
-    CMDA1="kubectl exec -it cni-benchmark-a1 -- "
-    CMDA2="kubectl exec -it cni-benchmark-a2 -- "
-    CMDA3="kubectl exec -it cni-benchmark-a3 -- "
+    CMDA1="kubectl -n $NAMESPACE exec -it cni-benchmark-a1 -- "
+    CMDA2="kubectl -n $NAMESPACE exec -it cni-benchmark-a2 -- "
+    CMDA3="kubectl -n $NAMESPACE exec -it cni-benchmark-a3 -- "
 
     SVC_A1="cni-benchmark-a1"
     SVC_A2="cni-benchmark-a2"
     SVC_A3="cni-benchmark-a3"
 
-    [ -d ./results/$BENCHID ] && rm -rf ./results/$BENCHID
+    # [ -d ./results/$BENCHID ] && rm -rf ./results/$BENCHID
+    [ -d /tmp/results/$BENCHID ] && rm -rf /tmp/results/$BENCHID
 
     for RUNID in $(seq 1 ${BENCHMARK_NUMBER_OF_RUNS}); do
 
         test_prepare
 
-        test_setup
+        # don't need to tweak cluster
+        # test_setup
 
-        kubectl apply -f ./assets/benchmark-resources.yaml
+        kubectl -n $NAMESPACE apply -f ./assets/benchmark-resources.yaml
 
-        kubectl wait --for=condition=Ready pod/cni-benchmark-a1 --timeout=300s
-        kubectl wait --for=condition=Ready pod/cni-benchmark-a2 --timeout=300s
-        kubectl wait --for=condition=Ready pod/cni-benchmark-a3 --timeout=300s
+        kubectl -n $NAMESPACE wait --for=condition=Ready pod/cni-benchmark-a1 --timeout=300s
+        kubectl -n $NAMESPACE wait --for=condition=Ready pod/cni-benchmark-a2 --timeout=300s
+        kubectl -n $NAMESPACE wait --for=condition=Ready pod/cni-benchmark-a3 --timeout=300s
 
-        DIRECT_A1="$(kubectl get pod cni-benchmark-a1 -o jsonpath='{.status.podIP}')"
-        DIRECT_A2="$(kubectl get pod cni-benchmark-a2 -o jsonpath='{.status.podIP}')"
-        DIRECT_A3="$(kubectl get pod cni-benchmark-a3 -o jsonpath='{.status.podIP}')"
+        DIRECT_A1="$(kubectl -n $NAMESPACE get pod cni-benchmark-a1 -o jsonpath='{.status.podIP}')"
+        DIRECT_A2="$(kubectl -n $NAMESPACE get pod cni-benchmark-a2 -o jsonpath='{.status.podIP}')"
+        DIRECT_A3="$(kubectl -n $NAMESPACE get pod cni-benchmark-a3 -o jsonpath='{.status.podIP}')"
         
         test_info
 
