@@ -9,7 +9,8 @@ metadata:
 spec:
   containers:
     - name: benchmark
-      image: hub.comcast.net/k8s-eng/iperf3:v2.8
+      # image: hub.comcast.net/k8s-eng/iperf3:v2.8
+      image: hub.comcast.net/cloud-network/statexec_iperf3:v1.0
       command: ["sleep","infinity"]
       securityContext:
         capabilities:
@@ -34,7 +35,8 @@ metadata:
 spec:
   containers:
     - name: benchmark
-      image: hub.comcast.net/k8s-eng/iperf3:v2.8
+      # image: hub.comcast.net/k8s-eng/iperf3:v2.8
+      image: hub.comcast.net/cloud-network/statexec_iperf3:v1.0
       command: ["sleep","infinity"]
       securityContext:
         capabilities:
@@ -59,7 +61,8 @@ metadata:
 spec:
   containers:
     - name: benchmark
-      image: hub.comcast.net/k8s-eng/iperf3:v2.8
+      # image: hub.comcast.net/k8s-eng/iperf3:v2.8
+      image: hub.comcast.net/cloud-network/statexec_iperf3:v1.0
       command: ["sleep","infinity"]
       securityContext:
         capabilities:
