@@ -530,11 +530,10 @@ function bench_cni {
     SVC_A2="cni-benchmark-a2"
     SVC_A3="cni-benchmark-a3"
 
-    if  $WIPE_RESULTS; then
-        echo "Wiping results"
-        [ -d ./results/$BENCHID ] && rm -rf ./results/$BENCHID
-    fi
-    exit
+    # if  $WIPE_RESULTS=; then
+    #     echo "Wiping results"
+    #     [ -d ./results/$BENCHID ] && rm -rf ./results/$BENCHID
+    # fi
 
     for RUNID in $(seq 1 ${BENCHMARK_NUMBER_OF_RUNS}); do
 
