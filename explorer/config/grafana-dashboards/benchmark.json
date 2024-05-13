@@ -62,7 +62,7 @@
         "content": "<center>\n<h1>Kubernetes CNI benchmark 2024-01</h1>\n  by infraBuilder and BlackSwift\n</center>\n\n",
         "mode": "html"
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.4.2",
       "type": "text"
     },
     {
@@ -86,7 +86,7 @@
         "content": "<center><h1>Benchmark ${id_a}</h1></center>",
         "mode": "html"
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.4.2",
       "type": "text"
     },
     {
@@ -110,7 +110,7 @@
         "content": "<center><h1>Benchmark ${id_b}</h1></center>",
         "mode": "html"
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.4.2",
       "type": "text"
     },
     {
@@ -138,7 +138,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "max": 40000000000,
+          "max": 200000000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -165,8 +165,7 @@
               }
             ]
           },
-          "unit": "bps",
-          "unitScale": true
+          "unit": "bps"
         },
         "overrides": []
       },
@@ -195,7 +194,7 @@
         "sizing": "auto",
         "valueMode": "color"
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -225,7 +224,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "max": 40000000000,
+          "max": 200000000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -252,8 +251,7 @@
               }
             ]
           },
-          "unit": "bps",
-          "unitScale": true
+          "unit": "bps"
         },
         "overrides": []
       },
@@ -282,7 +280,7 @@
         "sizing": "auto",
         "valueMode": "color"
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -338,8 +336,7 @@
               }
             ]
           },
-          "unit": "percentunit",
-          "unitScale": true
+          "unit": "percentunit"
         },
         "overrides": []
       },
@@ -365,7 +362,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -382,7 +379,6 @@
         }
       ],
       "title": "[$id_a] Variance coefficient of bandwidth by test",
-      "transformations": [],
       "type": "gauge"
     },
     {
@@ -422,8 +418,7 @@
               }
             ]
           },
-          "unit": "percentunit",
-          "unitScale": true
+          "unit": "percentunit"
         },
         "overrides": []
       },
@@ -449,7 +444,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -466,7 +461,6 @@
         }
       ],
       "title": "[$id_b] Variance coefficient of bandwidth by test",
-      "transformations": [],
       "type": "gauge"
     },
     {
@@ -489,7 +483,7 @@
             "inspect": false
           },
           "mappings": [],
-          "max": 40000000000,
+          "max": 200000000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -516,8 +510,7 @@
               }
             ]
           },
-          "unit": "string",
-          "unitScale": true
+          "unit": "string"
         },
         "overrides": [
           {
@@ -591,7 +584,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -671,7 +664,7 @@
             "inspect": false
           },
           "mappings": [],
-          "max": 40000000000,
+          "max": 200000000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -698,8 +691,7 @@
               }
             ]
           },
-          "unit": "string",
-          "unitScale": true
+          "unit": "string"
         },
         "overrides": [
           {
@@ -773,7 +765,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -887,14 +879,13 @@
                 }
               },
               "mappings": [],
-              "max": 40000000000,
+              "max": 200000000000,
               "min": 0,
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red",
-                    "value": null
+                    "color": "red"
                   },
                   {
                     "color": "orange",
@@ -1004,14 +995,13 @@
                 }
               },
               "mappings": [],
-              "max": 40000000000,
+              "max": 200000000000,
               "min": 0,
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red",
-                    "value": null
+                    "color": "red"
                   },
                   {
                     "color": "orange",
@@ -1121,14 +1111,13 @@
                 }
               },
               "mappings": [],
-              "max": 40000000000,
+              "max": 200000000000,
               "min": 0,
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red",
-                    "value": null
+                    "color": "red"
                   },
                   {
                     "color": "orange",
@@ -1238,14 +1227,13 @@
                 }
               },
               "mappings": [],
-              "max": 40000000000,
+              "max": 200000000000,
               "min": 0,
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red",
-                    "value": null
+                    "color": "red"
                   },
                   {
                     "color": "orange",
@@ -1361,8 +1349,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red",
-                    "value": null
+                    "color": "red"
                   }
                 ]
               },
@@ -1466,8 +1453,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red",
-                    "value": null
+                    "color": "red"
                   }
                 ]
               },
@@ -1571,8 +1557,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red",
-                    "value": null
+                    "color": "red"
                   }
                 ]
               },
@@ -1676,8 +1661,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red",
-                    "value": null
+                    "color": "red"
                   }
                 ]
               },
@@ -1780,8 +1764,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red",
-                    "value": null
+                    "color": "red"
                   }
                 ]
               },
@@ -1885,8 +1868,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red",
-                    "value": null
+                    "color": "red"
                   }
                 ]
               },
@@ -1990,8 +1972,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red",
-                    "value": null
+                    "color": "red"
                   }
                 ]
               },
@@ -2095,8 +2076,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "red",
-                    "value": null
+                    "color": "red"
                   }
                 ]
               },
@@ -2182,7 +2162,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "max": 40000000000,
+          "max": 200000000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -2209,8 +2189,7 @@
               }
             ]
           },
-          "unit": "bps",
-          "unitScale": true
+          "unit": "bps"
         },
         "overrides": [
           {
@@ -2282,7 +2261,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -2315,7 +2294,6 @@
         }
       ],
       "title": "[$id_a][$testtcp] - Results average over all runs",
-      "transformations": [],
       "type": "gauge"
     },
     {
@@ -2330,7 +2308,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "max": 40000000000,
+          "max": 200000000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -2357,8 +2335,7 @@
               }
             ]
           },
-          "unit": "bps",
-          "unitScale": true
+          "unit": "bps"
         },
         "overrides": [
           {
@@ -2430,7 +2407,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -2463,7 +2440,6 @@
         }
       ],
       "title": "[$id_b][$testtcp] - Results average over all runs",
-      "transformations": [],
       "type": "gauge"
     },
     {
@@ -2510,7 +2486,7 @@
             }
           },
           "mappings": [],
-          "max": 40000000000,
+          "max": 200000000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -2537,8 +2513,7 @@
               }
             ]
           },
-          "unit": "bps",
-          "unitScale": true
+          "unit": "bps"
         },
         "overrides": []
       },
@@ -2580,7 +2555,6 @@
         }
       ],
       "title": "[$id_a][$testtcp] - Client Throughput in bits/s",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -2627,7 +2601,7 @@
             }
           },
           "mappings": [],
-          "max": 40000000000,
+          "max": 200000000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -2654,8 +2628,7 @@
               }
             ]
           },
-          "unit": "bps",
-          "unitScale": true
+          "unit": "bps"
         },
         "overrides": []
       },
@@ -2697,7 +2670,6 @@
         }
       ],
       "title": "[$id_a][$testtcp] - Server Throughput in bits/s",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -2744,7 +2716,7 @@
             }
           },
           "mappings": [],
-          "max": 40000000000,
+          "max": 200000000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -2771,8 +2743,7 @@
               }
             ]
           },
-          "unit": "bps",
-          "unitScale": true
+          "unit": "bps"
         },
         "overrides": []
       },
@@ -2814,7 +2785,6 @@
         }
       ],
       "title": "[$id_b][$testtcp] - Client Throughput in bits/s",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -2861,7 +2831,7 @@
             }
           },
           "mappings": [],
-          "max": 40000000000,
+          "max": 200000000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -2888,8 +2858,7 @@
               }
             ]
           },
-          "unit": "bps",
-          "unitScale": true
+          "unit": "bps"
         },
         "overrides": []
       },
@@ -2931,7 +2900,462 @@
         }
       ],
       "title": "[$id_b][$testtcp] - Server Throughput in bits/s",
-      "transformations": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 30000000000
+              },
+              {
+                "color": "#EAB839",
+                "value": 35000000000
+              },
+              {
+                "color": "green",
+                "value": 38000000000
+              },
+              {
+                "color": "dark-green",
+                "value": 39000000000
+              }
+            ]
+          },
+          "unit": "pps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 51
+      },
+      "id": 437,
+      "interval": "1s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(statexec_network_sent_packets_total{id=\"${id_a}\",run=~\"${run_a}\",instance=~\"$testtcp\",role=\"client\"}[1s])) by (run)",
+          "format": "time_series",
+          "instant": false,
+          "legendFormat": "Run {{run}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "[$id_a][$testtcp] - Client Throughput in packets/s",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 30000000000
+              },
+              {
+                "color": "#EAB839",
+                "value": 35000000000
+              },
+              {
+                "color": "green",
+                "value": 38000000000
+              },
+              {
+                "color": "dark-green",
+                "value": 39000000000
+              }
+            ]
+          },
+          "unit": "pps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 51
+      },
+      "id": 438,
+      "interval": "1s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(statexec_network_received_packets_total{id=\"${id_a}\",run=~\"${run_a}\",instance=~\"$testtcp\",role=\"server\"}[1s])) by (run)\n",
+          "format": "time_series",
+          "instant": false,
+          "legendFormat": "Run {{run}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "[$id_a][$testtcp] - Server Throughput in packets/s",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 30000000000
+              },
+              {
+                "color": "#EAB839",
+                "value": 35000000000
+              },
+              {
+                "color": "green",
+                "value": 38000000000
+              },
+              {
+                "color": "dark-green",
+                "value": 39000000000
+              }
+            ]
+          },
+          "unit": "pps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 51
+      },
+      "id": 535,
+      "interval": "1s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(statexec_network_sent_packets_total{id=\"${id_b}\",run=~\"${run_b}\",instance=~\"$testtcp\",role=\"client\"}[1s])) by (run)",
+          "format": "time_series",
+          "instant": false,
+          "legendFormat": "Run {{run}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "[$id_b][$testtcp] - Client Throughput in packets/s",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 30000000000
+              },
+              {
+                "color": "#EAB839",
+                "value": 35000000000
+              },
+              {
+                "color": "green",
+                "value": 38000000000
+              },
+              {
+                "color": "dark-green",
+                "value": 39000000000
+              }
+            ]
+          },
+          "unit": "pps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 51
+      },
+      "id": 536,
+      "interval": "1s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(statexec_network_received_packets_total{id=\"${id_b}\",run=~\"${run_b}\",instance=~\"$testtcp\",role=\"server\"}[1s])) by (run)\n",
+          "format": "time_series",
+          "instant": false,
+          "legendFormat": "Run {{run}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "[$id_b][$testtcp] - Server Throughput in packets/s",
       "type": "timeseries"
     },
     {
@@ -2988,8 +3412,7 @@
               }
             ]
           },
-          "unit": "cpu",
-          "unitScale": true
+          "unit": "cpu"
         },
         "overrides": []
       },
@@ -2997,7 +3420,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 51
+        "y": 57
       },
       "id": 14,
       "interval": "1s",
@@ -3035,7 +3458,6 @@
         }
       ],
       "title": "[$id_a][$testtcp] - Client CPU",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -3092,8 +3514,7 @@
               }
             ]
           },
-          "unit": "cpu",
-          "unitScale": true
+          "unit": "cpu"
         },
         "overrides": []
       },
@@ -3101,7 +3522,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 51
+        "y": 57
       },
       "id": 18,
       "interval": "1s",
@@ -3139,7 +3560,6 @@
         }
       ],
       "title": "[$id_a][$testtcp] - Server CPU",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -3196,8 +3616,7 @@
               }
             ]
           },
-          "unit": "cpu",
-          "unitScale": true
+          "unit": "cpu"
         },
         "overrides": []
       },
@@ -3205,7 +3624,7 @@
         "h": 6,
         "w": 6,
         "x": 12,
-        "y": 51
+        "y": 57
       },
       "id": 245,
       "interval": "1s",
@@ -3243,7 +3662,6 @@
         }
       ],
       "title": "[$id_b][$testtcp] - Client CPU",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -3300,8 +3718,7 @@
               }
             ]
           },
-          "unit": "cpu",
-          "unitScale": true
+          "unit": "cpu"
         },
         "overrides": []
       },
@@ -3309,7 +3726,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 51
+        "y": 57
       },
       "id": 246,
       "interval": "1s",
@@ -3347,7 +3764,6 @@
         }
       ],
       "title": "[$id_b][$testtcp] - Server CPU",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -3404,8 +3820,7 @@
               }
             ]
           },
-          "unit": "decbytes",
-          "unitScale": true
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -3413,7 +3828,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 57
+        "y": 63
       },
       "id": 22,
       "interval": "1s",
@@ -3452,7 +3867,6 @@
         }
       ],
       "title": "[$id_a][$testtcp] - Client Memory",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -3509,8 +3923,7 @@
               }
             ]
           },
-          "unit": "decbytes",
-          "unitScale": true
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -3518,7 +3931,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 57
+        "y": 63
       },
       "id": 242,
       "interval": "1s",
@@ -3557,7 +3970,6 @@
         }
       ],
       "title": "[$id_a][$testtcp] - Server Memory",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -3614,8 +4026,7 @@
               }
             ]
           },
-          "unit": "decbytes",
-          "unitScale": true
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -3623,7 +4034,7 @@
         "h": 6,
         "w": 6,
         "x": 12,
-        "y": 57
+        "y": 63
       },
       "id": 247,
       "interval": "1s",
@@ -3662,7 +4073,6 @@
         }
       ],
       "title": "[$id_b][$testtcp] - Client Memory",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -3719,8 +4129,7 @@
               }
             ]
           },
-          "unit": "decbytes",
-          "unitScale": true
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -3728,7 +4137,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 57
+        "y": 63
       },
       "id": 248,
       "interval": "1s",
@@ -3767,7 +4176,6 @@
         }
       ],
       "title": "[$id_b][$testtcp] - Server Memory",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -3776,7 +4184,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 138
+        "y": 162
       },
       "id": 32,
       "panels": [],
@@ -3797,7 +4205,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "max": 40000000000,
+          "max": 200000000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -3824,8 +4232,7 @@
               }
             ]
           },
-          "unit": "bps",
-          "unitScale": true
+          "unit": "bps"
         },
         "overrides": [
           {
@@ -3922,7 +4329,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 139
+        "y": 163
       },
       "id": 170,
       "interval": "1s",
@@ -3941,7 +4348,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -3989,7 +4396,6 @@
         }
       ],
       "title": "[$id_a][$testudp] - Results average over all runs",
-      "transformations": [],
       "type": "gauge"
     },
     {
@@ -4004,7 +4410,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "max": 40000000000,
+          "max": 200000000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -4031,8 +4437,7 @@
               }
             ]
           },
-          "unit": "bps",
-          "unitScale": true
+          "unit": "bps"
         },
         "overrides": [
           {
@@ -4129,7 +4534,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 139
+        "y": 163
       },
       "id": 171,
       "interval": "1s",
@@ -4148,7 +4553,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -4196,7 +4601,6 @@
         }
       ],
       "title": "[$id_b][$testudp] - Results average over all runs",
-      "transformations": [],
       "type": "gauge"
     },
     {
@@ -4243,7 +4647,7 @@
             }
           },
           "mappings": [],
-          "max": 40000000000,
+          "max": 200000000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -4270,8 +4674,7 @@
               }
             ]
           },
-          "unit": "bps",
-          "unitScale": true
+          "unit": "bps"
         },
         "overrides": []
       },
@@ -4279,7 +4682,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 145
+        "y": 169
       },
       "id": 33,
       "interval": "1s",
@@ -4313,7 +4716,6 @@
         }
       ],
       "title": "[$id_a][$testudp] - Client Throughput in bits/s",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -4360,7 +4762,7 @@
             }
           },
           "mappings": [],
-          "max": 40000000000,
+          "max": 200000000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -4387,8 +4789,7 @@
               }
             ]
           },
-          "unit": "bps",
-          "unitScale": true
+          "unit": "bps"
         },
         "overrides": []
       },
@@ -4396,7 +4797,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 145
+        "y": 169
       },
       "id": 249,
       "interval": "1s",
@@ -4430,7 +4831,6 @@
         }
       ],
       "title": "[$id_a][$testudp] - Server Throughput in bits/s",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -4477,7 +4877,7 @@
             }
           },
           "mappings": [],
-          "max": 40000000000,
+          "max": 200000000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -4504,8 +4904,7 @@
               }
             ]
           },
-          "unit": "bps",
-          "unitScale": true
+          "unit": "bps"
         },
         "overrides": []
       },
@@ -4513,7 +4912,7 @@
         "h": 6,
         "w": 6,
         "x": 12,
-        "y": 145
+        "y": 169
       },
       "id": 34,
       "interval": "1s",
@@ -4547,7 +4946,6 @@
         }
       ],
       "title": "[$id_b][$testudp] - Client Throughput in bits/s",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -4594,7 +4992,7 @@
             }
           },
           "mappings": [],
-          "max": 40000000000,
+          "max": 200000000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -4621,8 +5019,7 @@
               }
             ]
           },
-          "unit": "bps",
-          "unitScale": true
+          "unit": "bps"
         },
         "overrides": []
       },
@@ -4630,7 +5027,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 145
+        "y": 169
       },
       "id": 250,
       "interval": "1s",
@@ -4664,7 +5061,462 @@
         }
       ],
       "title": "[$id_b][$testudp] - Server Throughput in bits/s",
-      "transformations": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 30000000000
+              },
+              {
+                "color": "#EAB839",
+                "value": 35000000000
+              },
+              {
+                "color": "green",
+                "value": 38000000000
+              },
+              {
+                "color": "dark-green",
+                "value": 39000000000
+              }
+            ]
+          },
+          "unit": "pps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 175
+      },
+      "id": 639,
+      "interval": "1s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(statexec_network_sent_packets_total{id=\"${id_a}\",run=~\"${run_a}\",instance=~\"$testudp\",role=\"client\"}[1s])) by (run)",
+          "format": "time_series",
+          "instant": false,
+          "legendFormat": "Run {{run}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "[$id_a][$testudp] - Client Throughput in packets/s",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 30000000000
+              },
+              {
+                "color": "#EAB839",
+                "value": 35000000000
+              },
+              {
+                "color": "green",
+                "value": 38000000000
+              },
+              {
+                "color": "dark-green",
+                "value": 39000000000
+              }
+            ]
+          },
+          "unit": "pps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 175
+      },
+      "id": 640,
+      "interval": "1s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(statexec_network_received_packets_total{id=\"${id_a}\",run=~\"${run_a}\",instance=~\"$testudp\",role=\"server\"}[1s])) by (run)",
+          "format": "time_series",
+          "instant": false,
+          "legendFormat": "Run {{run}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "[$id_a][$testudp] - Server Throughput in packets/s",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 30000000000
+              },
+              {
+                "color": "#EAB839",
+                "value": 35000000000
+              },
+              {
+                "color": "green",
+                "value": 38000000000
+              },
+              {
+                "color": "dark-green",
+                "value": 39000000000
+              }
+            ]
+          },
+          "unit": "pps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 175
+      },
+      "id": 641,
+      "interval": "1s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(statexec_network_sent_packets_total{id=\"${id_b}\",run=~\"${run_b}\",instance=~\"$testudp\",role=\"client\"}[1s])) by (run)",
+          "format": "time_series",
+          "instant": false,
+          "legendFormat": "Run {{run}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "[$id_b][$testudp] - Client Throughput in packets/s",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 30000000000
+              },
+              {
+                "color": "#EAB839",
+                "value": 35000000000
+              },
+              {
+                "color": "green",
+                "value": 38000000000
+              },
+              {
+                "color": "dark-green",
+                "value": 39000000000
+              }
+            ]
+          },
+          "unit": "pps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 175
+      },
+      "id": 642,
+      "interval": "1s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(statexec_network_received_packets_total{id=\"${id_b}\",run=~\"${run_b}\",instance=~\"$testudp\",role=\"server\"}[1s])) by (run)",
+          "format": "time_series",
+          "instant": false,
+          "legendFormat": "Run {{run}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "[$id_b][$testudp] - Server Throughput in packets/s",
       "type": "timeseries"
     },
     {
@@ -4721,8 +5573,7 @@
               }
             ]
           },
-          "unit": "cpu",
-          "unitScale": true
+          "unit": "cpu"
         },
         "overrides": []
       },
@@ -4730,7 +5581,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 151
+        "y": 181
       },
       "id": 35,
       "interval": "1s",
@@ -4768,7 +5619,6 @@
         }
       ],
       "title": "[$id_a][$testudp] - Client CPU",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -4825,8 +5675,7 @@
               }
             ]
           },
-          "unit": "cpu",
-          "unitScale": true
+          "unit": "cpu"
         },
         "overrides": []
       },
@@ -4834,7 +5683,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 151
+        "y": 181
       },
       "id": 36,
       "interval": "1s",
@@ -4872,7 +5721,6 @@
         }
       ],
       "title": "[$id_a][$testudp] - Server CPU",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -4929,8 +5777,7 @@
               }
             ]
           },
-          "unit": "cpu",
-          "unitScale": true
+          "unit": "cpu"
         },
         "overrides": []
       },
@@ -4938,7 +5785,7 @@
         "h": 6,
         "w": 6,
         "x": 12,
-        "y": 151
+        "y": 181
       },
       "id": 38,
       "interval": "1s",
@@ -4976,7 +5823,6 @@
         }
       ],
       "title": "[$id_b][$testudp] - Client CPU",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -5033,8 +5879,7 @@
               }
             ]
           },
-          "unit": "cpu",
-          "unitScale": true
+          "unit": "cpu"
         },
         "overrides": []
       },
@@ -5042,7 +5887,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 151
+        "y": 181
       },
       "id": 39,
       "interval": "1s",
@@ -5080,7 +5925,6 @@
         }
       ],
       "title": "[$id_b][$testudp] - Server CPU",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -5137,8 +5981,7 @@
               }
             ]
           },
-          "unit": "decbytes",
-          "unitScale": true
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -5146,7 +5989,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 157
+        "y": 187
       },
       "id": 37,
       "interval": "1s",
@@ -5185,7 +6028,6 @@
         }
       ],
       "title": "[$id_a][$testudp] - Client Memory",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -5242,8 +6084,7 @@
               }
             ]
           },
-          "unit": "decbytes",
-          "unitScale": true
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -5251,7 +6092,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 157
+        "y": 187
       },
       "id": 251,
       "interval": "1s",
@@ -5290,7 +6131,6 @@
         }
       ],
       "title": "[$id_a][$testudp] - Server Memory",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -5347,8 +6187,7 @@
               }
             ]
           },
-          "unit": "decbytes",
-          "unitScale": true
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -5356,7 +6195,7 @@
         "h": 6,
         "w": 6,
         "x": 12,
-        "y": 157
+        "y": 187
       },
       "id": 40,
       "interval": "1s",
@@ -5395,7 +6234,6 @@
         }
       ],
       "title": "[$id_b][$testudp] - Client Memory",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -5452,8 +6290,7 @@
               }
             ]
           },
-          "unit": "decbytes",
-          "unitScale": true
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -5461,7 +6298,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 157
+        "y": 187
       },
       "id": 252,
       "interval": "1s",
@@ -5500,7 +6337,6 @@
         }
       ],
       "title": "[$id_b][$testudp] - Server Memory",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -5509,7 +6345,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 238
+        "y": 286
       },
       "id": 25,
       "panels": [],
@@ -5525,7 +6361,7 @@
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 239
+        "y": 287
       },
       "id": 31,
       "options": {
@@ -5537,7 +6373,7 @@
         "content": "Test naming : `[ds][tu][sm]`\n- `[ds]` : Direct mode (ip to ip) or via Service (pod to service)\n- `[tu]` : Tcp or Udp protocol\n- `[sm]` : Single stream or Multi streams (8 threads iperf3)\n\nExemples: `dus` stands for Direct Udp Singlestream, `stm` is Service Tcp Multistream\n\n---\n\nRepo: https://github.com/InfraBuilder/benchmark-k8s-cni-2024-01/\n\nTwitter : [@infrabuilder](https://twitter.com/infrabuilder) - [@BlackSwiftFR](https://twitter.com/blackswiftfr)\n\nWeb : [infraBuilder.com](https://infrabuilder.com) - [BlackSwift.fr](https://www.blackswift.fr)",
         "mode": "markdown"
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.4.2",
       "type": "text"
     }
   ],
