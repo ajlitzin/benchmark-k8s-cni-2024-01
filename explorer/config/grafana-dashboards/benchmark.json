@@ -6562,8 +6562,28 @@
           },
           {
             "selected": false,
-            "text": "dtm",
-            "value": "dtm"
+            "text": "dtm_88",
+            "value": "dtm_88"
+          },
+          {
+            "selected": false,
+            "text": "dtm_1472",
+            "value": "dtm_1472"
+          },
+          {
+            "selected": false,
+            "text": "dtm_8972",
+            "value": "dtm_8972"
+          },
+          {
+            "selected": false,
+            "text": "dtm_1472_v6",
+            "value": "dtm_1472_v6"
+          },
+          {
+            "selected": false,
+            "text": "dtm_8972_v6",
+            "value": "dtm_8972_v6"
           },
           {
             "selected": false,
@@ -6576,7 +6596,7 @@
             "value": "stm"
           }
         ],
-        "query": "dts_88,dts_1472,dts_8972,dts_1472_v6,dts_8972_v6,tm,sts,stm",
+        "query": "dts_88,dts_1472,dts_8972,dts_1472_v6,dts_8972_v6,dtm_88,dtm_1472,dtm_8972,dtm_1472_v6,dtm_8972_v6,sts,stm",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
