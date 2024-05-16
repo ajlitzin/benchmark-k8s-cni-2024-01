@@ -375,7 +375,7 @@
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
-          "refId": "dts"
+          "refId": "dts_8972"
         }
       ],
       "title": "[$id_a] Variance coefficient of bandwidth by test",
@@ -457,7 +457,7 @@
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
-          "refId": "dts"
+          "refId": "dts_8972"
         }
       ],
       "title": "[$id_b] Variance coefficient of bandwidth by test",
@@ -6537,8 +6537,28 @@
           },
           {
             "selected": false,
-            "text": "dts",
-            "value": "dts"
+            "text": "dts_88",
+            "value": "dts_88"
+          },
+          {
+            "selected": false,
+            "text": "dts_1472",
+            "value": "dts_1472"
+          },
+          {
+            "selected": false,
+            "text": "dts_8972",
+            "value": "dts_8972"
+          },
+          {
+            "selected": false,
+            "text": "dts_1472_v6",
+            "value": "dts_1472_v6"
+          },
+          {
+            "selected": false,
+            "text": "dts_8972_v6",
+            "value": "dts_8972_v6"
           },
           {
             "selected": false,
@@ -6556,7 +6576,7 @@
             "value": "stm"
           }
         ],
-        "query": "dts,dtm,sts,stm",
+        "query": "dts_88,dts_1472,dts_8972,dts_1472_v6,dts_8972_v6,tm,sts,stm",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
