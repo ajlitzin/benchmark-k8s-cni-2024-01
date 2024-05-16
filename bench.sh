@@ -31,6 +31,7 @@ TEST_DURATION=60
 DELAY_METRICS=10
 
 BENCHMARK_NUMBER_OF_RUNS=${BENCHMARK_NUMBER_OF_RUNS:-3}
+# BENCHMARK_NUMBER_OF_RUNS=${BENCHMARK_NUMBER_OF_RUNS:-1}
 
 function statexec {
     echo "statexec -f $1 -d ${DELAY_METRICS} -l id=$BENCHID -l run=$RUNID -i $TEST -mst 1704067200000"
@@ -102,10 +103,13 @@ function servercmd {
         > $OUTPUTDIR/${filename}.stdout \
         2> $OUTPUTDIR/${filename}.stderr
 
-    $CMDA2 \
-        cat ${filepath}/${filename}.prom \
-        > $OUTPUTDIR/${filename}.prom \
-        2>/dev/null
+    # $CMDA2 \
+    #     cat ${filepath}/${filename}.prom \
+    #     > $OUTPUTDIR/${filename}.prom \
+    #     2>/dev/null
+    # kubectl -n network-test cp cni-benchmark-a2:/tmp/dts_1472-server.prom /tmp/results/cilium-nokproxy/1/dts_1472-server.prom
+    kubectl -n $NAMESPACE cp --retries=5 cni-benchmark-a2:${filepath}/${filename}.prom ${OUTPUTDIR}/${filename}.prom 2>/dev/null
+
 }
 function clientcmd {
     # need to use /tmp to write files in our containers
@@ -125,10 +129,13 @@ function clientcmd {
         > $OUTPUTDIR/${filename}.stdout \
         2> $OUTPUTDIR/${filename}.stderr
 
-    $CMDA3 \
-        cat ${filepath}/${filename}.prom \
-        > $OUTPUTDIR/${filename}.prom \
-        2>/dev/null
+    # $CMDA3 \
+    #     cat ${filepath}/${filename}.prom \
+    #     > $OUTPUTDIR/${filename}.prom \
+    #     2>/dev/null
+
+    # cat'ing the file sometimes failed to copy the whole prom file locally
+    kubectl -n $NAMESPACE cp --retries=5 cni-benchmark-a3:${filepath}/${filename}.prom ${OUTPUTDIR}/${filename}.prom 2>/dev/null
 }
 
 function extract_metrics {
@@ -182,23 +189,50 @@ function test_idle {
 
 # Direct TCP Single Stream
 function test_dts {
-    TEST="dts"
+    local size=${1:-8972}  # If size is not specified, default to 9000
+    local v6=${2:-""}  # If v6 is not specified, default to empty string
+
+    # Ensure size is an integer between 88 and 9000
+    if ! [[ "$size" =~ ^[0-9]+$ ]] || ((size < 88 || size > 8972)); then
+        echo "Error: size must be an integer between 88 and 8972"
+        return 1
+    fi
+
+    # TEST="dts_"$size  # Append underscore and size value to test name
+    if [ -z "$v6" ]; then
+        TEST="dts_"$size
+    else
+        TEST="dts_"$size"_v6"
+    fi
 
     log start
     servercmd iperf3 -s &
     WAITPID=$!
     sleep 1
-    clientcmd iperf3 -c $DIRECT_A2 -O 1 -Z -t $TEST_DURATION --dont-fragment --json
+    # clientcmd iperf3 -c $DIRECT_A2 -O 1 -Z -t $TEST_DURATION --dont-fragment --json
+    if [ -z "$v6" ]; then
+        clientcmd iperf3 -c $DIRECT_A2 -O 1 -Z -t $TEST_DURATION -M $size --json
+    else
+        clientcmd iperf3 -c $DIRECT_A2_V6 -O 1 -Z -t $TEST_DURATION -M $size -6 --json
+    fi
     wait $WAITPID
-
 
     # Extract results
     DTS_BW=$(cat $OUTPUTDIR/${TEST}-client.stdout | jq -r '.end.sum_received.bits_per_second')
     DTS_RTS=$(cat $OUTPUTDIR/${TEST}-client.stdout | jq -r '.end.sum_sent.retransmits')
 
-    extract_metrics DTS > $OUTPUTDIR/${TEST}.results
-    echo "DTS_BW=$DTS_BW" >> $OUTPUTDIR/${TEST}.results
-    echo "DTS_RTS=$DTS_RTS" >> $OUTPUTDIR/${TEST}.results
+    if [ -z "$v6" ]; then
+        extract_metrics DTS_$size > $OUTPUTDIR/${TEST}.results
+        echo "DTS_${size}_BW=$DTS_BW" >> $OUTPUTDIR/${TEST}.results
+        echo "DTS_${size}_RTS=$DTS_RTS" >> $OUTPUTDIR/${TEST}.results
+    else
+        extract_metrics DTS_${size}_V6 > $OUTPUTDIR/${TEST}.results
+        echo "DTS_${size}_V6_BW=$DTS_BW" >> $OUTPUTDIR/${TEST}.results
+        echo "DTS_${size}_V6_RTS=$DTS_RTS" >> $OUTPUTDIR/${TEST}.results
+    fi
+    # extract_metrics DTS_$size > $OUTPUTDIR/${TEST}.results
+    # echo "DTS_${size}_BW=$DTS_BW" >> $OUTPUTDIR/${TEST}.results
+    # echo "DTS_${size}_RTS=$DTS_RTS" >> $OUTPUTDIR/${TEST}.results
     
     log end
 }
@@ -376,7 +410,12 @@ function test_cleanup {
 
 function reset_result_vars {
     unset IDLE_CLIENT_SYSTEM IDLE_CLIENT_USER IDLE_CLIENT_MEM IDLE_SERVER_SYSTEM IDLE_SERVER_USER IDLE_SERVER_MEM
-    unset DTS_CLIENT_SYSTEM DTS_CLIENT_USER DTS_CLIENT_MEM DTS_SERVER_SYSTEM DTS_SERVER_USER DTS_SERVER_MEM DTS_BW DTS_RTS 
+    unset DTS_88_CLIENT_SYSTEM DTS_88_CLIENT_USER DTS_88_CLIENT_MEM DTS_88_SERVER_SYSTEM DTS_88_SERVER_USER DTS_88_SERVER_MEM DTS_88_BW DTS_88_RTS
+    unset DTS_1472_CLIENT_SYSTEM DTS_1472_CLIENT_USER DTS_1472_CLIENT_MEM DTS_1472_SERVER_SYSTEM DTS_1472_SERVER_USER DTS_1472_SERVER_MEM DTS_1472_BW DTS_1472_RTS
+    unset DTS_8972_CLIENT_SYSTEM DTS_8972_CLIENT_USER DTS_8972_CLIENT_MEM DTS_8972_SERVER_SYSTEM DTS_8972_SERVER_USER DTS_8972_SERVER_MEM DTS_8972_BW DTS_8972_RTS
+    unset DTS_1472_V6_CLIENT_SYSTEM DTS_1472_V6_CLIENT_USER DTS_1472_V6_CLIENT_MEM DTS_1472_V6_SERVER_SYSTEM DTS_1472_V6_SERVER_USER DTS_1472_V6_SERVER_MEM DTS_1472_V6_BW DTS_1472_V6_RTS
+    unset DTS_8972_V6_CLIENT_SYSTEM DTS_8972_V6_CLIENT_USER DTS_8972_V6_CLIENT_MEM DTS_8972_V6_SERVER_SYSTEM DTS_8972_V6_SERVER_USER DTS_8972_V6_SERVER_MEM DTS_8972_V6_BW DTS_8972_V6_RTS
+    unset DTS_CLIENT_SYSTEM DTS_CLIENT_USER DTS_CLIENT_MEM DTS_SERVER_SYSTEM DTS_SERVER_USER DTS_SERVER_MEM DTS_BW DTS_RTS
     unset DTM_CLIENT_SYSTEM DTM_CLIENT_USER DTM_CLIENT_MEM DTM_SERVER_SYSTEM DTM_SERVER_USER DTM_SERVER_MEM DTM_BW DTM_RTS
     unset DUS_CLIENT_SYSTEM DUS_CLIENT_USER DUS_CLIENT_MEM DUS_SERVER_SYSTEM DUS_SERVER_USER DUS_SERVER_MEM DUS_BW DUS_JITTER DUS_LOST
     unset DUM_CLIENT_SYSTEM DUM_CLIENT_USER DUM_CLIENT_MEM DUM_SERVER_SYSTEM DUM_SERVER_USER DUM_SERVER_MEM DUM_BW DUM_JITTER DUM_LOST
@@ -395,17 +434,21 @@ function compute_results {
     do
         reset_result_vars
         source /tmp/results/$BENCHID/$i/all.results
-
         (
-            echo -en "$IDLE_CLIENT_SYSTEM\t$IDLE_CLIENT_USER\t$IDLE_CLIENT_MEM\t$IDLE_SERVER_SYSTEM\t$IDLE_SERVER_USER\t$IDLE_SERVER_MEM\t"
-            echo -en "$DTS_CLIENT_SYSTEM\t$DTS_CLIENT_USER\t$DTS_CLIENT_MEM\t$DTS_SERVER_SYSTEM\t$DTS_SERVER_USER\t$DTS_SERVER_MEM\t$DTS_BW\t$DTS_RTS\t"
-            echo -en "$DTM_CLIENT_SYSTEM\t$DTM_CLIENT_USER\t$DTM_CLIENT_MEM\t$DTM_SERVER_SYSTEM\t$DTM_SERVER_USER\t$DTM_SERVER_MEM\t$DTM_BW\t$DTM_RTS\t"
-            echo -en "$DUS_CLIENT_SYSTEM\t$DUS_CLIENT_USER\t$DUS_CLIENT_MEM\t$DUS_SERVER_SYSTEM\t$DUS_SERVER_USER\t$DUS_SERVER_MEM\t$DUS_BW\t$DUS_JITTER\t$DUS_LOST\t"
-            echo -en "$DUM_CLIENT_SYSTEM\t$DUM_CLIENT_USER\t$DUM_CLIENT_MEM\t$DUM_SERVER_SYSTEM\t$DUM_SERVER_USER\t$DUM_SERVER_MEM\t$DUM_BW\t$DUM_JITTER\t$DUM_LOST\t"
-            echo -en "$STS_CLIENT_SYSTEM\t$STS_CLIENT_USER\t$STS_CLIENT_MEM\t$STS_SERVER_SYSTEM\t$STS_SERVER_USER\t$STS_SERVER_MEM\t$STS_BW\t$STS_RTS\t"
-            echo -en "$STM_CLIENT_SYSTEM\t$STM_CLIENT_USER\t$STM_CLIENT_MEM\t$STM_SERVER_SYSTEM\t$STM_SERVER_USER\t$STM_SERVER_MEM\t$STM_BW\t$STM_RTS\t"
-            echo -en "$SUS_CLIENT_SYSTEM\t$SUS_CLIENT_USER\t$SUS_CLIENT_MEM\t$SUS_SERVER_SYSTEM\t$SUS_SERVER_USER\t$SUS_SERVER_MEM\t$SUS_BW\t$SUS_JITTER\t$SUS_LOST\t"
-            echo -en "$SUM_CLIENT_SYSTEM\t$SUM_CLIENT_USER\t$SUM_CLIENT_MEM\t$SUM_SERVER_SYSTEM\t$SUM_SERVER_USER\t$SUM_SERVER_MEM\t$SUM_BW\t$SUM_JITTER\t$SUM_LOST\t"
+            echo -en "IDLE: $IDLE_CLIENT_SYSTEM\t$IDLE_CLIENT_USER\t$IDLE_CLIENT_MEM\t$IDLE_SERVER_SYSTEM\t$IDLE_SERVER_USER\t$IDLE_SERVER_MEM\t"
+            echo -en "DTS: $DTS_CLIENT_SYSTEM\t$DTS_CLIENT_USER\t$DTS_CLIENT_MEM\t$DTS_SERVER_SYSTEM\t$DTS_SERVER_USER\t$DTS_SERVER_MEM\t$DTS_BW\t$DTS_RTS\t"
+            echo -en "DTS_88: $DTS_88_CLIENT_SYSTEM\t$DTS_88_CLIENT_USER\t$DTS_88_CLIENT_MEM\t$DTS_88_SERVER_SYSTEM\t$DTS_88_SERVER_USER\t$DTS_88_SERVER_MEM\t$DTS_88_BW\t$DTS_88_RTS\t"
+            echo -en "DTS_1472: $DTS_1472_CLIENT_SYSTEM\t$DTS_1472_CLIENT_USER\t$DTS_1472_CLIENT_MEM\t$DTS_1472_SERVER_SYSTEM\t$DTS_1472_SERVER_USER\t$DTS_1472_SERVER_MEM\t$DTS_1472_BW\t$DTS_1472_RTS\t"
+            echo -en "DTS_8972: $DTS_8972_CLIENT_SYSTEM\t$DTS_8972_CLIENT_USER\t$DTS_8972_CLIENT_MEM\t$DTS_8972_SERVER_SYSTEM\t$DTS_8972_SERVER_USER\t$DTS_8972_SERVER_MEM\t$DTS_8972_BW\t$DTS_8972_RTS\t"
+            echo -en "DTS_1472_V6: $DTS_1472_V6_CLIENT_SYSTEM\t$DTS_1472_V6_CLIENT_USER\t$DTS_1472_V6_CLIENT_MEM\t$DTS_1472_V6_SERVER_SYSTEM\t$DTS_1472_V6_SERVER_USER\t$DTS_1472_V6_SERVER_MEM\t$DTS_1472_V6_BW\t$DTS_1472_V6_RTS\t"
+            echo -en "DTS_8972_V6: $DTS_8972_V6_CLIENT_SYSTEM\t$DTS_8972_V6_CLIENT_USER\t$DTS_8972_V6_CLIENT_MEM\t$DTS_8972_V6_SERVER_SYSTEM\t$DTS_8972_V6_SERVER_USER\t$DTS_8972_V6_SERVER_MEM\t$DTS_8972_V6_BW\t$DTS_8972_V6_RTS\t"
+            echo -en "DTM: $DTM_CLIENT_SYSTEM\t$DTM_CLIENT_USER\t$DTM_CLIENT_MEM\t$DTM_SERVER_SYSTEM\t$DTM_SERVER_USER\t$DTM_SERVER_MEM\t$DTM_BW\t$DTM_RTS\t"
+            echo -en "DUS: $DUS_CLIENT_SYSTEM\t$DUS_CLIENT_USER\t$DUS_CLIENT_MEM\t$DUS_SERVER_SYSTEM\t$DUS_SERVER_USER\t$DUS_SERVER_MEM\t$DUS_BW\t$DUS_JITTER\t$DUS_LOST\t"
+            echo -en "DUM: $DUM_CLIENT_SYSTEM\t$DUM_CLIENT_USER\t$DUM_CLIENT_MEM\t$DUM_SERVER_SYSTEM\t$DUM_SERVER_USER\t$DUM_SERVER_MEM\t$DUM_BW\t$DUM_JITTER\t$DUM_LOST\t"
+            echo -en "STS: $STS_CLIENT_SYSTEM\t$STS_CLIENT_USER\t$STS_CLIENT_MEM\t$STS_SERVER_SYSTEM\t$STS_SERVER_USER\t$STS_SERVER_MEM\t$STS_BW\t$STS_RTS\t"
+            echo -en "STM: $STM_CLIENT_SYSTEM\t$STM_CLIENT_USER\t$STM_CLIENT_MEM\t$STM_SERVER_SYSTEM\t$STM_SERVER_USER\t$STM_SERVER_MEM\t$STM_BW\t$STM_RTS\t"
+            echo -en "SUS: $SUS_CLIENT_SYSTEM\t$SUS_CLIENT_USER\t$SUS_CLIENT_MEM\t$SUS_SERVER_SYSTEM\t$SUS_SERVER_USER\t$SUS_SERVER_MEM\t$SUS_BW\t$SUS_JITTER\t$SUS_LOST\t"
+            echo -en "SUM: $SUM_CLIENT_SYSTEM\t$SUM_CLIENT_USER\t$SUM_CLIENT_MEM\t$SUM_SERVER_SYSTEM\t$SUM_SERVER_USER\t$SUM_SERVER_MEM\t$SUM_BW\t$SUM_JITTER\t$SUM_LOST\t"
             echo        
         ) >> /tmp/results/$BENCHID/results-spreadsheet.csv
         # ) >> ./results/$BENCHID/results-spreadsheet.csv
@@ -422,15 +465,37 @@ function compute_results {
                 echo 'benchmark_mem_bytes{'$LABELS',test="idle",role="server"} '${IDLE_SERVER_MEM}' 1704067200000'
             fi
 
-            if [ ! -z "$DTS_CLIENT_SYSTEM" ]; then
-                echo 'benchmark_cpu_seconds{'$LABELS',test="dts",role="client",mode="system"} '${DTS_CLIENT_SYSTEM}' 1704067200000'
-                echo 'benchmark_cpu_seconds{'$LABELS',test="dts",role="client",mode="user"} '${DTS_CLIENT_USER}' 1704067200000'
-                echo 'benchmark_mem_bytes{'$LABELS',test="dts",role="client"} '${DTS_CLIENT_MEM}' 1704067200000'
-                echo 'benchmark_cpu_seconds{'$LABELS',test="dts",role="server",mode="system"} '${DTS_SERVER_SYSTEM}' 1704067200000'
-                echo 'benchmark_cpu_seconds{'$LABELS',test="dts",role="server",mode="user"} '${DTS_SERVER_USER}' 1704067200000'
-                echo 'benchmark_mem_bytes{'$LABELS',test="dts",role="server"} '${DTS_SERVER_MEM}' 1704067200000'
-                echo 'benchmark_iperf_bandwidth_bits_per_second{'$LABELS',test="dts"} '${DTS_BW}' 1704067200000'
-                echo 'benchmark_iperf_retransmits_count{'$LABELS',test="dts"} '${DTS_RTS}' 1704067200000'
+            if [ ! -z "$DTS_88_CLIENT_SYSTEM" ]; then
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_88",role="client",mode="system"} '${DTS_88_CLIENT_SYSTEM}' 1704067200000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_88",role="client",mode="user"} '${DTS_88_CLIENT_USER}' 1704067200000'
+                echo 'benchmark_mem_bytes{'$LABELS',test="dts_88",role="client"} '${DTS_88_CLIENT_MEM}' 1704067200000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_88",role="server",mode="system"} '${DTS_88_SERVER_SYSTEM}' 1704067200000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_88",role="server",mode="user"} '${DTS_88_SERVER_USER}' 1704067200000'
+                echo 'benchmark_mem_bytes{'$LABELS',test="dts_88",role="server"} '${DTS_88_SERVER_MEM}' 1704067200000'
+                echo 'benchmark_iperf_bandwidth_bits_per_second{'$LABELS',test="dts_88"} '${DTS_88_BW}' 1704067200000'
+                echo 'benchmark_iperf_retransmits_count{'$LABELS',test="dts_88"} '${DTS_88_RTS}' 1704067200000'
+            fi
+
+            if [ ! -z "$DTS_1472_CLIENT_SYSTEM" ]; then
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_1472",role="client",mode="system"} '${DTS_1472_CLIENT_SYSTEM}' 1704067200000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_1472",role="client",mode="user"} '${DTS_1472_CLIENT_USER}' 1704067200000'
+                echo 'benchmark_mem_bytes{'$LABELS',test="dts_1472",role="client"} '${DTS_1472_CLIENT_MEM}' 1704067200000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_1472",role="server",mode="system"} '${DTS_1472_SERVER_SYSTEM}' 1704067200000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_1472",role="server",mode="user"} '${DTS_1472_SERVER_USER}' 1704067200000'
+                echo 'benchmark_mem_bytes{'$LABELS',test="dts_1472",role="server"} '${DTS_1472_SERVER_MEM}' 1704067200000'
+                echo 'benchmark_iperf_bandwidth_bits_per_second{'$LABELS',test="dts_1472"} '${DTS_1472_BW}' 1704067200000'
+                echo 'benchmark_iperf_retransmits_count{'$LABELS',test="dts_1472"} '${DTS_1472_RTS}' 1704067200000'
+            fi
+
+            if [ ! -z "$DTS_8972_CLIENT_SYSTEM" ]; then
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_8972",role="client",mode="system"} '${DTS_8972_CLIENT_SYSTEM}' 1704067200000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_8972",role="client",mode="user"} '${DTS_8972_CLIENT_USER}' 1704067200000'
+                echo 'benchmark_mem_bytes{'$LABELS',test="dts_8972",role="client"} '${DTS_8972_CLIENT_MEM}' 1704067200000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_8972",role="server",mode="system"} '${DTS_8972_SERVER_SYSTEM}' 1704067200000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_8972",role="server",mode="user"} '${DTS_8972_SERVER_USER}' 1704067200000'
+                echo 'benchmark_mem_bytes{'$LABELS',test="dts_8972",role="server"} '${DTS_8972_SERVER_MEM}' 1704067200000'
+                echo 'benchmark_iperf_bandwidth_bits_per_second{'$LABELS',test="dts_8972"} '${DTS_8972_BW}' 1704067200000'
+                echo 'benchmark_iperf_retransmits_count{'$LABELS',test="dts_8972"} '${DTS_8972_RTS}' 1704067200000'
             fi
 
             if [ ! -z "$DTM_CLIENT_SYSTEM" ]; then
@@ -442,6 +507,28 @@ function compute_results {
                 echo 'benchmark_mem_bytes{'$LABELS',test="dtm",role="server"} '${DTM_SERVER_MEM}' 1704067200000'
                 echo 'benchmark_iperf_bandwidth_bits_per_second{'$LABELS',test="dtm"} '${DTM_BW}' 1704067200000'
                 echo 'benchmark_iperf_retransmits_count{'$LABELS',test="dtm"} '${DTM_RTS}' 1704067200000'
+            fi
+
+            if [ ! -z "$DTS_1472_V6_CLIENT_SYSTEM" ]; then
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_1472_v6",role="client",mode="system"} '${DTS_1472_V6_CLIENT_SYSTEM}' 17040672_v600000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_1472_v6",role="client",mode="user"} '${DTS_1472_V6_CLIENT_USER}' 1704067200000'
+                echo 'benchmark_mem_bytes{'$LABELS',test="dts_1472_v6",role="client"} '${DTS_1472_V6_CLIENT_MEM}' 1704067200000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_1472_v6",role="server",mode="system"} '${DTS_1472_V6_SERVER_SYSTEM}' 1704067200000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_1472_v6",role="server",mode="user"} '${DTS_1472_V6_SERVER_USER}' 1704067200000'
+                echo 'benchmark_mem_bytes{'$LABELS',test="dts_1472_v6",role="server"} '${DTS_1472_V6_SERVER_MEM}' 1704067200000'
+                echo 'benchmark_iperf_bandwidth_bits_per_second{'$LABELS',test="dts_1472_v6"} '${DTS_1472_V6_BW}' 1704067200000'
+                echo 'benchmark_iperf_retransmits_count{'$LABELS',test="dts_1472_v6"} '${DTS_1472_V6_RTS}' 1704067200000'
+            fi
+
+            if [ ! -z "$DTS_8972_V6_CLIENT_SYSTEM" ]; then
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_8972_v6",role="client",mode="system"} '${DTS_8972_V6_CLIENT_SYSTEM}' 1704067200000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_8972_v6",role="client",mode="user"} '${DTS_8972_V6_CLIENT_USER}' 1704067200000'
+                echo 'benchmark_mem_bytes{'$LABELS',test="dts_8972_v6",role="client"} '${DTS_8972_V6_CLIENT_MEM}' 1704067200000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_8972_v6",role="server",mode="system"} '${DTS_8972_V6_SERVER_SYSTEM}' 1704067200000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="dts_8972_v6",role="server",mode="user"} '${DTS_8972_V6_SERVER_USER}' 1704067200000'
+                echo 'benchmark_mem_bytes{'$LABELS',test="dts_8972_v6",role="server"} '${DTS_8972_V6_SERVER_MEM}' 1704067200000'
+                echo 'benchmark_iperf_bandwidth_bits_per_second{'$LABELS',test="dts_8972_v6"} '${DTS_8972_V6_BW}' 1704067200000'
+                echo 'benchmark_iperf_retransmits_count{'$LABELS',test="dts_8972_v6"} '${DTS_8972_V6_RTS}' 1704067200000'
             fi
 
             if [ ! -z "$DUS_CLIENT_SYSTEM" ]; then
@@ -551,12 +638,27 @@ function bench_cni {
         DIRECT_A1="$(kubectl -n $NAMESPACE get pod cni-benchmark-a1 -o jsonpath='{.status.podIP}')"
         DIRECT_A2="$(kubectl -n $NAMESPACE get pod cni-benchmark-a2 -o jsonpath='{.status.podIP}')"
         DIRECT_A3="$(kubectl -n $NAMESPACE get pod cni-benchmark-a3 -o jsonpath='{.status.podIP}')"
-        
+
+        # Making a big assumption that the v4 addr is always returned first
+        # could loop through results and do a simple test for colon to determine v6
+        # kubectl -n network-test get pod cni-benchmark-a1 -o jsonpath='{.status.podIPs}'
+        # [{"ip":"198.19.2.107"},{"ip":"2001:558:104c:10a::2:5bff"}]
+        DIRECT_A2_V6="$(kubectl -n $NAMESPACE get pod cni-benchmark-a2 -o jsonpath='{.status.podIPs[1].ip}')"
+        # kubectl -n network-test get service cni-benchmark-a2 -o jsonpath='{.status.loadBalancer.ingress}'
+        # [{"ip":"10.112.182.57"},{"ip":"2001:558:104c:108::1:7"}]
+        SVC_A2_V6=kubectl -n network-test get service cni-benchmark-a2 -o jsonpath='{.status.loadBalancer.ingress[1].ip}'
         test_info
 
         test_idle
         
-        test_dts
+        # You can pass in different values for packet size in each test, but if you deviate from 88, 1472, and 8972,
+        # you'll need to update the metrics gathering in compute_results and the grafana dashboard json definitions
+        # in explorer/config/grafana-dashboards/benchmark.json
+        test_dts 88
+        test_dts 1472
+        test_dts 8972
+        test_dts 1472 v6
+        test_dts 8972 v6
         test_dtm
         test_dus
         test_dum
@@ -568,7 +670,8 @@ function bench_cni {
 
         cat $OUTPUTDIR/*.results > $OUTPUTDIR/all.results
 
-        test_cleanup
+        # cleans up the maas stuff that we're not currently using
+        # test_cleanup
     done
 
     compute_results
