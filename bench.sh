@@ -708,14 +708,28 @@ function bench_cni {
         DIRECT_A2="$(kubectl -n $NAMESPACE get pod cni-benchmark-a2 -o jsonpath='{.status.podIP}')"
         DIRECT_A3="$(kubectl -n $NAMESPACE get pod cni-benchmark-a3 -o jsonpath='{.status.podIP}')"
 
-        # Making a big assumption that the v4 addr is always returned first
-        # could loop through results and do a simple test for colon to determine v6
+        # Assuming pod always has two IPs.  One is v4, the other v6
+        # we don't know which order they will be returned
         # kubectl -n network-test get pod cni-benchmark-a1 -o jsonpath='{.status.podIPs}'
         # [{"ip":"198.19.2.107"},{"ip":"2001:558:104c:10a::2:5bff"}]
-        DIRECT_A2_V6="$(kubectl -n $NAMESPACE get pod cni-benchmark-a2 -o jsonpath='{.status.podIPs[1].ip}')"
+        DIRECT_A2_IP1="$(kubectl -n $NAMESPACE get pod cni-benchmark-a2 -o jsonpath='{.status.podIPs[0].ip}')"
+        DIRECT_A2_IP2="$(kubectl -n $NAMESPACE get pod cni-benchmark-a2 -o jsonpath='{.status.podIPs[1].ip}')"
+        if [[ $DIRECT_A2_IP2 == *":"* ]]; then
+            DIRECT_A2_V6=$DIRECT_A2_IP2
+        else
+            DIRECT_A2_V6=$DIRECT_A2_IP1
+        fi
         # kubectl -n network-test get service cni-benchmark-a2 -o jsonpath='{.status.loadBalancer.ingress}'
         # [{"ip":"10.112.182.57"},{"ip":"2001:558:104c:108::1:7"}]
-        SVC_A2_V6=kubectl -n network-test get service cni-benchmark-a2 -o jsonpath='{.status.loadBalancer.ingress[1].ip}'
+        SVC_A2_IP1="$(kubectl -n network-test get service cni-benchmark-a2 -o jsonpath='{.status.loadBalancer.ingress[0].ip}')"
+        SVC_A2_IP2="$(kubectl -n network-test get service cni-benchmark-a2 -o jsonpath='{.status.loadBalancer.ingress[1].ip}')"
+        if [[ $SVC_A2_IP1 == *":"* ]]; then
+            SVC_A2_V6=$SVC_A2_IP1
+            SVC_A2_V4=$SVC_A2_IP2
+        else
+            SVC_A2_V4=$SVC_A2_IP1
+            SVC_A2_V6=$SVC_A2_IP2
+        fi
         test_info
 
         test_idle
