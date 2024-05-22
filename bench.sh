@@ -25,6 +25,30 @@ SVC_A1=""
 SVC_A2=""
 SVC_A3=""
 
+# Assumes that the external client is already running in a container
+# e.g. on external client 1
+# docker login hub.comcast.net
+# docker run -d --name statexec_client1 hub.comcast.net/cloud-network/statexec_iperf3:v1.0
+
+# bash doesn't have boolean vars, so we use string "true" or "false"
+# set to any value but string "true" if not using external clients
+USE_EXT_CLIENT="false"
+
+# Bash in OSX is too old (v3.x) to support Associative Arrays
+# Otherwise we could set one up containing external load gen client servers and their container names
+# declare -A EXT_CLIENT_DICT
+# key is the external client IP, value is the container name
+# EXT_CLIENT_DICT[10.112.183.204]="statexec_client1"
+# EXT_CLIENT_DICT["10.112.183.205"]="statexec_client2"
+
+# Be sure to match the order of the external client IP and container name
+EXT_CLIENT_IP_ARRAY=("10.112.183.204")
+EXT_CLIENT_CONTAINER_ARRAY=("statexec_client1")
+# not yet ready for multiple external clients
+# forgot we need to have multiple servers to test against
+# EXT_CLIENT_IP_ARRAY=("10.112.183.204" "10.112.183.205")
+# EXT_CLIENT_CONTAINER_ARRAY=("statexec_client1" "statexec_client2")
+
 WIPE_RESULTS=${WIPE_RESULTS:-false}
 
 TEST_DURATION=60
@@ -115,27 +139,61 @@ function clientcmd {
     # need to use /tmp to write files in our containers
     filepath="/tmp"
     filename="${TEST}-client"
+    local index=0
 
     NUMABIND=""
     # numactl --cpunodebind 1 -s sleep 1
     #[ "${BENCHID:0:3}" = "st_" ] && NUMABIND="numactl --cpunodebind=netdev:enp129s0f0 --membind=netdev:enp129s0f0"
     [ "${BENCHID:0:3}" = "st_" ] && NUMABIND="numactl --cpunodebind=1 --membind=1"
 
-    echo "$CMDA3 $(statexec ${filepath}/${filename}.prom) -dbc $(( ${DELAY_METRICS} + 1 ))  -c $DIRECT_A2 -- $NUMABIND $@" > $OUTPUTDIR/${filename}.cmd
+    if [ "${USE_EXT_CLIENT}" = "true" ]; then
+      for client_ip in "${EXT_CLIENT_IP_ARRAY[@]}"
+      do
+        # docker cp requires the path to exist on the host
+        jump cie@${client_ip} -- "mkdir -p $OUTPUTDIR"
+        echo "jump cie@${client_ip} -- docker exec ${EXT_CLIENT_CONTAINER_ARRAY[index]} $(statexec ${filepath}/${filename}.prom) -dbc $(( ${DELAY_METRICS} + 1 ))  -c $SVC_A2_V4 -- $NUMABIND $@"
 
-    $CMDA3 \
-        $(statexec ${filepath}/${filename}.prom) -dbc $(( ${DELAY_METRICS} + 1 ))  -c $DIRECT_A2 -- \
-        $NUMABIND $@ \
-        > $OUTPUTDIR/${filename}.stdout \
-        2> $OUTPUTDIR/${filename}.stderr
+        jump cie@${client_ip} -- "docker exec ${EXT_CLIENT_CONTAINER_ARRAY[index]} $(statexec ${filepath}/${filename}.prom) -dbc $(( ${DELAY_METRICS} + 1 ))  -c $SVC_A2_V4 -- $NUMABIND $@" \
+            > $OUTPUTDIR/${filename}_client$(( index+1 )).stdout \
+            2> $OUTPUTDIR/${filename}_client$(( index+1 )).stderr &
 
-    # $CMDA3 \
-    #     cat ${filepath}/${filename}.prom \
-    #     > $OUTPUTDIR/${filename}.prom \
-    #     2>/dev/null
+        index=$((index+1))
+      done
+        # Because we run the statexec client test in the background so that more than
+        # one client can run in parallel, we need to wait for them to finish
+        # before we can collect the statexec .prom output file
+        sleep $TEST_DURATION
+        # copy statexec prometheus output .prom files from external clients
+        # docker cp <containerId>:/file/path/within/container /host/path/target
+        echo "docker cp ${EXT_CLIENT_CONTAINER_ARRAY[0]}:${filepath}/${filename}.prom ${OUTPUTDIR}/${filename}.prom"
+        jump cie@${client_ip} -- "docker cp ${EXT_CLIENT_CONTAINER_ARRAY[0]}:${filepath}/${filename}.prom ${OUTPUTDIR}/${filename}.prom" 2>/dev/null
+        # after i get 2nd client working
+        # jump cie@${client_ip} -- "docker cp ${EXT_CLIENT_CONTAINER_ARRAY[index]}: ${filepath}/${filename}.prom ${OUTPUTDIR}/${filename}.prom" 2>/dev/null
 
-    # cat'ing the file sometimes failed to copy the whole prom file locally
-    kubectl -n $NAMESPACE cp --retries=5 cni-benchmark-a3:${filepath}/${filename}.prom ${OUTPUTDIR}/${filename}.prom 2>/dev/null
+        # now copy from the external client to the local machine
+        # scp via autobahn:  https://security.sys.comcast.net/How_Do_I/Project_Autobahn/faq/Tools.md#using-scp-with-autobahn
+        scp -o 'ProxyCommand ssh -qx svcAutobahn@jump.autobahn.comcast.com -W %h:%p' cie@${client_ip}:${OUTPUTDIR}/${filename}.prom ${OUTPUTDIR}/${filename}.prom
+
+    else
+        echo "$CMDA3 $(statexec ${filepath}/${filename}.prom) -dbc $(( ${DELAY_METRICS} + 1 ))  -c $DIRECT_A2 -- $NUMABIND $@" > $OUTPUTDIR/${filename}.cmd
+        $CMDA3 \
+            $(statexec ${filepath}/${filename}.prom) -dbc $(( ${DELAY_METRICS} + 1 ))  -c $DIRECT_A2 -- \
+            $NUMABIND $@ \
+            > $OUTPUTDIR/${filename}.stdout \
+            2> $OUTPUTDIR/${filename}.stderr
+
+        # $CMDA3 \
+        #     cat ${filepath}/${filename}.prom \
+        #     > $OUTPUTDIR/${filename}.prom \
+        #     2>/dev/null
+
+        # cat'ing the file sometimes failed to copy the whole prom file locally
+        kubectl -n $NAMESPACE cp --retries=5 cni-benchmark-a3:${filepath}/${filename}.prom ${OUTPUTDIR}/${filename}.prom 2>/dev/null
+    fi
+
+    # Reset USE_EXT_CLIENT to false so people have to be deliberate about using external clients
+    USE_EXT_CLIENT="false"
+
 }
 
 function extract_metrics {
@@ -358,7 +416,11 @@ function test_stm {
     servercmd iperf3 -s &
     WAITPID=$!
     sleep 1
-    clientcmd iperf3 -c $SVC_A2 -O 1 -P 8 -Z -t $TEST_DURATION --dont-fragment --json
+    if [ ! -z "$EXT_CLIENT" ]; then
+        clientcmd iperf3 -c $SVC_A2_V4 -O 1 -P 32 -Z -t $TEST_DURATION --dont-fragment --json
+    else
+        clientcmd iperf3 -c $SVC_A2_V4 -O 1 -P 8 -Z -t $TEST_DURATION --dont-fragment --json
+    fi
     wait $WAITPID
 
     # Extract results
