@@ -135,11 +135,11 @@ spec:
   selector:
     app: cni-benchmark
     node: a3
-  type: LoadBalancer
-  ipFamilyPolicy: RequireDualStack
-  ipFamilies:
-  - IPv4
-  - IPv6
+  # type: LoadBalancer
+  # ipFamilyPolicy: RequireDualStack
+  # ipFamilies:
+  # - IPv4
+  # - IPv6
   ports:
   - name: iperf3
     port: 5201
