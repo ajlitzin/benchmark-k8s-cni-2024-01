@@ -71,6 +71,7 @@ function test_prepare {
     TEST="prepare"
     # OUTPUTDIR="./results/$BENCHID/$RUNID"
     OUTPUTDIR="/tmp/results/$BENCHID/$RUNID"
+    OUTPUTDIR_NORUNID="/tmp/results/$BENCHID"
 
     log start
     [ -e $OUTPUTDIR ] && rm -rf $OUTPUTDIR
@@ -151,28 +152,51 @@ function clientcmd {
       do
         # docker cp requires the path to exist on the host
         jump cie@${client_ip} -- "mkdir -p $OUTPUTDIR"
-        echo "jump cie@${client_ip} -- docker exec ${EXT_CLIENT_CONTAINER_ARRAY[index]} $(statexec ${filepath}/${filename}.prom) -dbc $(( ${DELAY_METRICS} + 1 ))  -c $SVC_A2_V4 -- $NUMABIND $@"
+        # iperf3 appends to it's logfile, so we need to archive or delete it so that future runs don't append to it
+        # TODO it would probably be best to kill and recreate containers at start and end of tests
+        # hardcoding file name- temporary only
+        # jump cie@${client_ip} -- "docker exec ${EXT_CLIENT_CONTAINER_ARRAY[0]} rm -f ${filepath}/${filename}1.stdout" 2>/dev/null
+        jump cie@${client_ip} -- "rm -f ${filepath}/${filename}1.stdout" 2>/dev/null
 
-        jump cie@${client_ip} -- "docker exec ${EXT_CLIENT_CONTAINER_ARRAY[index]} $(statexec ${filepath}/${filename}.prom) -dbc $(( ${DELAY_METRICS} + 1 ))  -c $SVC_A2_V4 -- $NUMABIND $@" \
-            > $OUTPUTDIR/${filename}_client$(( index+1 )).stdout \
-            2> $OUTPUTDIR/${filename}_client$(( index+1 )).stderr &
+        # echo "jump cie@${client_ip} -- docker exec ${EXT_CLIENT_CONTAINER_ARRAY[index]} $(statexec ${filepath}/${filename}.prom) -dbc $(( ${DELAY_METRICS} + 1 ))  -c $SVC_A2_V4 -- $NUMABIND $@"
+        # don't redirect stdout to a local file, it often gets incomplete data
+        # instead we'll rely on the test to have iperf3 write output to a file
+        # local to the external client and then copy it back to the local machine
+
+        # I'd like to run the iperf/statexec command via container like inside the k8s clusters, but currently I get a major performance hit
+        # when running it via container on the physical load gen hosts (~8Gbps vs 197Gbs iperf without container)
+        # jump cie@${client_ip} -- "docker exec ${EXT_CLIENT_CONTAINER_ARRAY[index]} $(statexec ${filepath}/${filename}.prom) -dbc $(( ${DELAY_METRICS} + 1 ))  -c $SVC_A2_V4 -- $NUMABIND $@" \
+        #     2> $OUTPUTDIR/${filename}$(( index+1 )).stderr &
+        jump cie@${client_ip} -- "$(statexec ${filepath}/${filename}.prom) -dbc $(( ${DELAY_METRICS} + 1 ))  -c $SVC_A2_V4 -- $NUMABIND $@" \
+            2> $OUTPUTDIR/${filename}$(( index+1 )).stderr
+        # Need to run in background when running multiple clients in parallel.  Not yet working
+        # jump cie@${client_ip} -- "$(statexec ${filepath}/${filename}.prom) -dbc $(( ${DELAY_METRICS} + 1 ))  -c $SVC_A2_V4 -- $NUMABIND $@" \
+        #     2> $OUTPUTDIR/${filename}$(( index+1 )).stderr &
 
         index=$((index+1))
       done
         # Because we run the statexec client test in the background so that more than
         # one client can run in parallel, we need to wait for them to finish
-        # before we can collect the statexec .prom output file
-        sleep $TEST_DURATION
-        # copy statexec prometheus output .prom files from external clients
-        # docker cp <containerId>:/file/path/within/container /host/path/target
-        echo "docker cp ${EXT_CLIENT_CONTAINER_ARRAY[0]}:${filepath}/${filename}.prom ${OUTPUTDIR}/${filename}.prom"
-        jump cie@${client_ip} -- "docker cp ${EXT_CLIENT_CONTAINER_ARRAY[0]}:${filepath}/${filename}.prom ${OUTPUTDIR}/${filename}.prom" 2>/dev/null
-        # after i get 2nd client working
+        # before we can collect the statexec .prom output file.  This sleep is a guess
+        # on the time it will take for the test to run.  Based on experience, it's
+        # consistently taken 15-20 seconds longer than TEST_DURATION for the result files
+        # to be written to the client container.
+        sleep $(( TEST_DURATION +30 ))
+        # copy statexec prometheus output .prom files and iperf3 json output files from external clients
+        # echo "docker cp ${EXT_CLIENT_CONTAINER_ARRAY[0]}:${filepath}/. ${OUTPUTDIR}/"
+        # skip the iperf run from docker for now, it's not performing correctly slow
+        # jump cie@${client_ip} -- "docker cp ${EXT_CLIENT_CONTAINER_ARRAY[0]}:${filepath}/. ${OUTPUTDIR}/"
+        jump cie@${client_ip} -- "cp ${filepath}/${filename}* ${OUTPUTDIR}/"
+        # for when i get 2nd external client working
         # jump cie@${client_ip} -- "docker cp ${EXT_CLIENT_CONTAINER_ARRAY[index]}: ${filepath}/${filename}.prom ${OUTPUTDIR}/${filename}.prom" 2>/dev/null
 
-        # now copy from the external client to the local machine
+        # copy all output files from the external client to the local machine
         # scp via autobahn:  https://security.sys.comcast.net/How_Do_I/Project_Autobahn/faq/Tools.md#using-scp-with-autobahn
-        scp -o 'ProxyCommand ssh -qx svcAutobahn@jump.autobahn.comcast.com -W %h:%p' cie@${client_ip}:${OUTPUTDIR}/${filename}.prom ${OUTPUTDIR}/${filename}.prom
+        # i.e. with -r now you end up with an extra directory
+        # Example of the scp syntax to copy a dir and it's contents to another dir.
+        # We are copying the entire RUNDID (e.g. 1) dir to the local machine
+        # scp -r -o 'ProxyCommand ssh -qx svcAutobahn@jump.autobahn.comcast.com -W %h:%p' cie@10.112.183.204:/tmp/results/cilium-nokproxy/1 /tmp/results/cilium-nokproxy/
+        scp -r -o 'ProxyCommand ssh -qx svcAutobahn@jump.autobahn.comcast.com -W %h:%p' cie@${client_ip}:${OUTPUTDIR} ${OUTPUTDIR_NORUNID}/
 
     else
         echo "$CMDA3 $(statexec ${filepath}/${filename}.prom) -dbc $(( ${DELAY_METRICS} + 1 ))  -c $DIRECT_A2 -- $NUMABIND $@" > $OUTPUTDIR/${filename}.cmd
@@ -182,18 +206,17 @@ function clientcmd {
             > $OUTPUTDIR/${filename}.stdout \
             2> $OUTPUTDIR/${filename}.stderr
 
+        # cat'ing the file sometimes failed to copy the whole prom file locally
+        # docker cp allows for retries
         # $CMDA3 \
         #     cat ${filepath}/${filename}.prom \
         #     > $OUTPUTDIR/${filename}.prom \
         #     2>/dev/null
-
-        # cat'ing the file sometimes failed to copy the whole prom file locally
         kubectl -n $NAMESPACE cp --retries=5 cni-benchmark-a3:${filepath}/${filename}.prom ${OUTPUTDIR}/${filename}.prom 2>/dev/null
     fi
 
     # Reset USE_EXT_CLIENT to false so people have to be deliberate about using external clients
     USE_EXT_CLIENT="false"
-
 }
 
 function extract_metrics {
@@ -327,8 +350,8 @@ function test_dtm {
 
     if [ -z "$v6" ]; then
         extract_metrics DTM_$size > $OUTPUTDIR/${TEST}.results
-        echo "DTM_${size}_BW=$DTS_BW" >> $OUTPUTDIR/${TEST}.results
-        echo "DTM_${size}_RTS=$DTS_RTS" >> $OUTPUTDIR/${TEST}.results
+        echo "DTM_${size}_BW=$DTM_BW" >> $OUTPUTDIR/${TEST}.results
+        echo "DTM_${size}_RTS=$DTM_RTS" >> $OUTPUTDIR/${TEST}.results
     else
         extract_metrics DTM_${size}_V6 > $OUTPUTDIR/${TEST}.results
         echo "DTM_${size}_V6_BW=$DTM_BW" >> $OUTPUTDIR/${TEST}.results
@@ -410,26 +433,38 @@ function test_sts {
 
 # Service TCP Multi Stream
 function test_stm {
-    TEST="stm"
 
+    if [ "$USE_EXT_CLIENT" = "true" ]; then
+        TEST="estm"
+    else
+        TEST="stm"
+    fi
     log start
     servercmd iperf3 -s &
     WAITPID=$!
     sleep 1
-    if [ ! -z "$EXT_CLIENT" ]; then
-        clientcmd iperf3 -c $SVC_A2_V4 -O 1 -P 32 -Z -t $TEST_DURATION --dont-fragment --json
+    if [ "$USE_EXT_CLIENT" = "true" ]; then
+        clientcmd iperf3 -c $SVC_A2_V4 -O 1 -P 32 -Z -t $TEST_DURATION --dont-fragment --json --logfile /tmp/${TEST}-client1.stdout
+        # clientcmd iperf3 -c $SVC_A2_V4 -O 1 -P 32 -Z -t $TEST_DURATION --dont-fragment --json
+        wait $WAITPID
+        # Extract results
+        ESTM_BW=$(cat $OUTPUTDIR/${TEST}-client1.stdout | jq -r '.end.sum_received.bits_per_second')
+        ESTM_RTS=$(cat $OUTPUTDIR/${TEST}-client1.stdout | jq -r '.end.sum_sent.retransmits')
+
+        extract_metrics ESTM > $OUTPUTDIR/${TEST}.results
+        echo "ESTM_BW=$ESTM_BW" >> $OUTPUTDIR/${TEST}.results
+        echo "ESTM_RTS=$ESTM_RTS" >> $OUTPUTDIR/${TEST}.results
     else
         clientcmd iperf3 -c $SVC_A2_V4 -O 1 -P 8 -Z -t $TEST_DURATION --dont-fragment --json
+        wait $WAITPID
+        # Extract results
+        STM_BW=$(cat $OUTPUTDIR/${TEST}-client.stdout | jq -r '.end.sum_received.bits_per_second')
+        STM_RTS=$(cat $OUTPUTDIR/${TEST}-client.stdout | jq -r '.end.sum_sent.retransmits')
+
+        extract_metrics STM > $OUTPUTDIR/${TEST}.results
+        echo "STM_BW=$STM_BW" >> $OUTPUTDIR/${TEST}.results
+        echo "STM_RTS=$STM_RTS" >> $OUTPUTDIR/${TEST}.results
     fi
-    wait $WAITPID
-
-    # Extract results
-    STM_BW=$(cat $OUTPUTDIR/${TEST}-client.stdout | jq -r '.end.sum_received.bits_per_second')
-    STM_RTS=$(cat $OUTPUTDIR/${TEST}-client.stdout | jq -r '.end.sum_sent.retransmits')
-
-    extract_metrics STM > $OUTPUTDIR/${TEST}.results
-    echo "STM_BW=$STM_BW" >> $OUTPUTDIR/${TEST}.results
-    echo "STM_RTS=$STM_RTS" >> $OUTPUTDIR/${TEST}.results
 
     log end
 }
@@ -504,6 +539,7 @@ function reset_result_vars {
     unset DUM_CLIENT_SYSTEM DUM_CLIENT_USER DUM_CLIENT_MEM DUM_SERVER_SYSTEM DUM_SERVER_USER DUM_SERVER_MEM DUM_BW DUM_JITTER DUM_LOST
     unset STS_CLIENT_SYSTEM STS_CLIENT_USER STS_CLIENT_MEM STS_SERVER_SYSTEM STS_SERVER_USER STS_SERVER_MEM STS_BW STS_RTS
     unset STM_CLIENT_SYSTEM STM_CLIENT_USER STM_CLIENT_MEM STM_SERVER_SYSTEM STM_SERVER_USER STM_SERVER_MEM STM_BW STM_RTS
+    unset ESTM_CLIENT_SYSTEM ESTM_CLIENT_USER ESTM_CLIENT_MEM ESTM_SERVER_SYSTEM ESTM_SERVER_USER ESTM_SERVER_MEM ESTM_BW ESTM_RTS
     unset SUS_CLIENT_SYSTEM SUS_CLIENT_USER SUS_CLIENT_MEM SUS_SERVER_SYSTEM SUS_SERVER_USER SUS_SERVER_MEM SUS_BW SUS_JITTER SUS_LOST
     unset SUM_CLIENT_SYSTEM SUM_CLIENT_USER SUM_CLIENT_MEM SUM_SERVER_SYSTEM SUM_SERVER_USER SUM_SERVER_MEM SUM_BW SUM_JITTER SUM_LOST
 }
@@ -534,6 +570,7 @@ function compute_results {
             echo -en "DUM: $DUM_CLIENT_SYSTEM\t$DUM_CLIENT_USER\t$DUM_CLIENT_MEM\t$DUM_SERVER_SYSTEM\t$DUM_SERVER_USER\t$DUM_SERVER_MEM\t$DUM_BW\t$DUM_JITTER\t$DUM_LOST\t"
             echo -en "STS: $STS_CLIENT_SYSTEM\t$STS_CLIENT_USER\t$STS_CLIENT_MEM\t$STS_SERVER_SYSTEM\t$STS_SERVER_USER\t$STS_SERVER_MEM\t$STS_BW\t$STS_RTS\t"
             echo -en "STM: $STM_CLIENT_SYSTEM\t$STM_CLIENT_USER\t$STM_CLIENT_MEM\t$STM_SERVER_SYSTEM\t$STM_SERVER_USER\t$STM_SERVER_MEM\t$STM_BW\t$STM_RTS\t"
+            echo -en "ESTM: $ESTM_CLIENT_SYSTEM\t$ESTM_CLIENT_USER\t$ESTM_CLIENT_MEM\t$ESTM_SERVER_SYSTEM\t$ESTM_SERVER_USER\t$ESTM_SERVER_MEM\t$ESTM_BW\t$ESTM_RTS\t"
             echo -en "SUS: $SUS_CLIENT_SYSTEM\t$SUS_CLIENT_USER\t$SUS_CLIENT_MEM\t$SUS_SERVER_SYSTEM\t$SUS_SERVER_USER\t$SUS_SERVER_MEM\t$SUS_BW\t$SUS_JITTER\t$SUS_LOST\t"
             echo -en "SUM: $SUM_CLIENT_SYSTEM\t$SUM_CLIENT_USER\t$SUM_CLIENT_MEM\t$SUM_SERVER_SYSTEM\t$SUM_SERVER_USER\t$SUM_SERVER_MEM\t$SUM_BW\t$SUM_JITTER\t$SUM_LOST\t"
             echo        
@@ -708,6 +745,18 @@ function compute_results {
                 echo 'benchmark_iperf_retransmits_count{'$LABELS',test="stm"} '${STM_RTS}' 1704067200000'
             fi
 
+            if [ ! -z "$ESTM_CLIENT_SYSTEM" ]; then
+                echo 'benchmark_cpu_seconds{'$LABELS',test="estm",role="client",mode="system"} '${ESTM_CLIENT_SYSTEM}' 1704067200000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="estm",role="client",mode="user"} '${ESTM_CLIENT_USER}' 1704067200000'
+                echo 'benchmark_mem_bytes{'$LABELS',test="estm",role="client"} '${ESTM_CLIENT_MEM}' 1704067200000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="estm",role="server",mode="system"} '${ESTM_SERVER_SYSTEM}' 1704067200000'
+                echo 'benchmark_cpu_seconds{'$LABELS',test="estm",role="server",mode="user"} '${ESTM_SERVER_USER}' 1704067200000'
+                echo 'benchmark_mem_bytes{'$LABELS',test="estm",role="server"} '${ESTM_SERVER_MEM}' 1704067200000'
+                echo 'benchmark_iperf_bandwidth_bits_per_second{'$LABELS',test="estm"} '${ESTM_BW}' 1704067200000'
+                echo 'benchmark_iperf_retransmits_count{'$LABELS',test="estm"} '${ESTM_RTS}' 1704067200000'
+            fi
+
+
             if [ ! -z "$SUS_CLIENT_SYSTEM" ]; then
                 echo 'benchmark_cpu_seconds{'$LABELS',test="sus",role="client",mode="system"} '${SUS_CLIENT_SYSTEM}' 1704067200000'
                 echo 'benchmark_cpu_seconds{'$LABELS',test="sus",role="client",mode="user"} '${SUS_CLIENT_USER}' 1704067200000'
@@ -799,21 +848,24 @@ function bench_cni {
         # You can pass in different values for packet size in each test, but if you deviate from 88, 1472, and 8972,
         # you'll need to update the metrics gathering in compute_results and the grafana dashboard json definitions
         # in explorer/config/grafana-dashboards/benchmark.json
-        test_dts 88
-        test_dts 1472
-        test_dts 8972
-        test_dts 1472 v6
-        test_dts 8972 v6
+        # test_dts 88
+        # test_dts 1472
+        # test_dts 8972
+        # test_dts 1472 v6
+        # test_dts 8972 v6
         test_dtm 88
-        test_dtm 1472
+        # test_dtm 1472
         test_dtm 8972
-        test_dtm 1472 v6
-        test_dtm 8972 v6
+        # test_dtm 1472 v6
+        # test_dtm 8972 v6
         # test_dus
         # test_dum
-        
         # test_sts
-        # test_stm
+        USE_EXT_CLIENT="true"
+        test_stm
+        USE_EXT_CLIENT="false"
+        echo "use ext client: $USE_EXT_CLIENT"
+        test_stm
         # test_sus
         # test_sum
 
